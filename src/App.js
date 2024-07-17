@@ -13,6 +13,8 @@ import Services from './pages/Services';
 import DocumentTemplates from './pages/DocumentTemplates';
 import PreConsultations from './pages/PreConsultations';
 import Motivos from './pages/Motivos';
+import AccountsReceivable from './pages/AccountsReceivable';
+import AccountsPayable from './pages/AccountsPayable';
 
 function App() {
   return (
@@ -30,6 +32,9 @@ function App() {
         <Route path="/document-templates" component={DocumentTemplates} />
         <Route path="/pre-consultations" component={PreConsultations} />
         <Route path="/motivos" component={Motivos} />
+        <Route path="/accounts-receivable" component={AccountsReceivable} />
+        <Route path="/accounts-payable" component={AccountsPayable} />
+
 
 
 
