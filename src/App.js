@@ -1,7 +1,6 @@
-// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Login from './pages/Login';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './pages/login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
@@ -19,28 +18,23 @@ import AccountsPayable from './pages/AccountsPayable';
 function App() {
   return (
     <Router>
-      <Switch>
-        <Route path="/login" component={Login} />
-        <Route path="/register" component={Register} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/profile" component={Profile} />
-        <Route path="/admin-dashboard" component={AdminDashboard} />
-        <Route path="/notifications" component={Notifications} />
-        <Route path="/appointments" component={Appointment} />
-        <Route path="/customization" component={Customization} />
-        <Route path="/services" component={Services} />
-        <Route path="/document-templates" component={DocumentTemplates} />
-        <Route path="/pre-consultations" component={PreConsultations} />
-        <Route path="/motivos" component={Motivos} />
-        <Route path="/accounts-receivable" component={AccountsReceivable} />
-        <Route path="/accounts-payable" component={AccountsPayable} />
-
-
-
-
-        
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/appointments" element={<Appointment />} />
+        <Route path="/customization" element={<Customization />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/document-templates" element={<DocumentTemplates />} />
+        <Route path="/pre-consultations" element={<PreConsultations />} />
+        <Route path="/motivos" element={<Motivos />} />
+        <Route path="/accounts-receivable" element={<AccountsReceivable />} />
+        <Route path="/accounts-payable" element={<AccountsPayable />} />
         {/* Adicione mais rotas conforme necessário */}
-      </Switch>
+      </Routes>
     </Router>
   );
 }
