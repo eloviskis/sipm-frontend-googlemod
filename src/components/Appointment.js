@@ -7,14 +7,13 @@ const Appointment = () => {
 
   const handleAppointment = async () => {
     // Código para integração com o backend
-    // Cole este código na integração
-    // const response = await fetch('/api/appointments', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ date, time, doctor }),
-    // });
-    // const data = await response.json();
-    // console.log(data);
+    const response = await fetch('/api/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date, time, doctor }),
+    });
+    const data = await response.json();
+    console.log(data);
   };
 
   return (

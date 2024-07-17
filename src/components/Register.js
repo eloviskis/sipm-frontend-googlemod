@@ -19,14 +19,14 @@ const Register = () => {
 
   const handleRegister = async () => {
     // Código para integração com o backend
-    // Cole este código na integração
-    // const response = await fetch('/api/register', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(formData),
-    // });
-    // const data = await response.json();
-    // console.log(data);
+    // Certifique-se de que o backend suporte múltiplos tenants
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+    const data = await response.json();
+    console.log(data);
   };
 
   return (
@@ -90,7 +90,7 @@ const Register = () => {
         )}
         <button
           onClick={handleRegister}
-          className="bg-green-500 text-white p-2 w-full rounded"
+          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
         >
           Registrar
         </button>

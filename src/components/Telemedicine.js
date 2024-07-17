@@ -3,13 +3,8 @@ import React from 'react';
 const Telemedicine = () => {
   const handleStartCall = () => {
     // Código para iniciar a videoconferência
-    // Cole este código na integração
-    // const response = await fetch('/api/telemedicine/start', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    // });
-    // const data = await response.json();
-    // console.log(data);
+    // Utilize WebRTC ou uma biblioteca de videoconferência como Twilio
+    console.log('Iniciando chamada de telemedicina');
   };
 
   return (
@@ -20,7 +15,7 @@ const Telemedicine = () => {
           onClick={handleStartCall}
           className="bg-blue-500 text-white p-2 w-full rounded"
         >
-          Iniciar Consulta por Vídeo
+          Iniciar Chamada
         </button>
       </div>
     </div>
