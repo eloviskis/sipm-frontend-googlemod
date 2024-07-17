@@ -8,6 +8,11 @@ import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
 import Notifications from './pages/Notifications';
 import Appointment from './pages/Appointment';
+import Customization from './pages/Customization';
+import Services from './pages/Services';
+import DocumentTemplates from './pages/DocumentTemplates';
+import PreConsultations from './pages/PreConsultations';
+import Motivos from './pages/Motivos';
 
 function App() {
   return (
@@ -20,6 +25,15 @@ function App() {
         <Route path="/admin-dashboard" component={AdminDashboard} />
         <Route path="/notifications" component={Notifications} />
         <Route path="/appointments" component={Appointment} />
+        <Route path="/customization" component={Customization} />
+        <Route path="/services" component={Services} />
+        <Route path="/document-templates" component={DocumentTemplates} />
+        <Route path="/pre-consultations" component={PreConsultations} />
+        <Route path="/motivos" component={Motivos} />
+
+
+
+        
         {/* Adicione mais rotas conforme necessário */}
       </Switch>
     </Router>
