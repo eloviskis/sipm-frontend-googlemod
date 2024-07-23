@@ -1,98 +1,85 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    role: 'doctor', // ou 'clinic'
-    cpf: '',
-    cnpj: '',
-    financialResponsible: '',
-  });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const history = useHistory();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleRegister = async () => {
-    // Código para integração com o backend
-    const response = await fetch('/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-    const data = await response.json();
-    console.log(data);
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+      if (response.ok) {
+        history.push('/dashboard');
+      } else {
+        alert('Registro falhou');
+      }
+    } catch (error) {
+      console.error('Erro ao registrar:', error);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Registro</h2>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="mb-4 p-2 w-full border border-gray-300 rounded"
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Senha"
-          value={formData.password}
-          onChange={handleChange}
-          className="mb-4 p-2 w-full border border-gray-300 rounded"
-        />
-        <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          className="mb-4 p-2 w-full border border-gray-300 rounded"
-        >
-          <option value="doctor">Médico</option>
-          <option value="clinic">Clínica</option>
-        </select>
-        {formData.role === 'doctor' && (
-          <input
-            type="text"
-            name="cpf"
-            placeholder="CPF"
-            value={formData.cpf}
-            onChange={handleChange}
-            className="mb-4 p-2 w-full border border-gray-300 rounded"
-          />
-        )}
-        {formData.role === 'clinic' && (
-          <>
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-4">Registrar</h2>
+        <form onSubmit={handleRegister}>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+              Nome
+            </label>
             <input
               type="text"
-              name="cnpj"
-              placeholder="CNPJ"
-              value={formData.cnpj}
-              onChange={handleChange}
-              className="mb-4 p-2 w-full border border-gray-300 rounded"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              required
             />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+              Email
+            </label>
             <input
-              type="text"
-              name="financialResponsible"
-              placeholder="Responsável Financeiro"
-              value={formData.financialResponsible}
-              onChange={handleChange}
-              className="mb-4 p-2 w-full border border-gray-300 rounded"
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              required
             />
-          </>
-        )}
-        <button
-          onClick={handleRegister}
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
-        >
-          Registrar
-        </button>
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+              Senha
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              required
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Registrar
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

@@ -3,49 +3,77 @@ import React, { useState } from 'react';
 const Appointment = () => {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [doctor, setDoctor] = useState('');
+  const [reason, setReason] = useState('');
 
-  const handleAppointment = async () => {
-    // Código para integração com o backend
-    const response = await fetch('/api/appointments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date, time, doctor }),
-    });
-    const data = await response.json();
-    console.log(data);
+  const handleAppointment = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ date, time, reason }),
+      });
+      if (response.ok) {
+        alert('Consulta agendada com sucesso');
+      } else {
+        alert('Falha ao agendar consulta');
+      }
+    } catch (error) {
+      console.error('Erro ao agendar consulta:', error);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Agendar Consulta</h2>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="mb-4 p-2 w-full border border-gray-300 rounded"
-        />
-        <input
-          type="time"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          className="mb-4 p-2 w-full border border-gray-300 rounded"
-        />
-        <input
-          type="text"
-          placeholder="Médico"
-          value={doctor}
-          onChange={(e) => setDoctor(e.target.value)}
-          className="mb-4 p-2 w-full border border-gray-300 rounded"
-        />
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold">Agendar Consulta</h1>
+      <form onSubmit={handleAppointment} className="mt-4">
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
+            Data
+          </label>
+          <input
+            type="date"
+            id="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="time">
+            Hora
+          </label>
+          <input
+            type="time"
+            id="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="reason">
+            Motivo
+          </label>
+          <textarea
+            id="reason"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            required
+          />
+        </div>
         <button
-          onClick={handleAppointment}
-          className="bg-green-500 text-white p-2 w-full rounded"
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         >
           Agendar
         </button>
-      </div>
+      </form>
     </div>
   );
 };
