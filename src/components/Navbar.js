@@ -6,10 +6,12 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <a href="/" className="text-white text-lg font-bold">SIPM</a>
         <div className="flex space-x-4">
-          <a href="/" className="text-white hover:text-secondary">Início</a>
-          <a href="/about" className="text-white hover:text-secondary">Sobre</a>
-          <a href="/services" className="text-white hover:text-secondary">Serviços</a>
+          <a href="/register" className="text-white hover:text-secondary">Registro</a>
+          <a href="/login" className="text-white hover:text-secondary">Login</a>
+          <a href="/pricing" className="text-white hover:text-secondary">Valores de Assinatura</a>
+          <a href="/features" className="text-white hover:text-secondary">O Que o Sistema Faz</a>
           <a href="/contact" className="text-white hover:text-secondary">Contato</a>
+          <a href="/about" className="text-white hover:text-secondary">Quem Somos</a>
         </div>
       </div>
     </nav>
