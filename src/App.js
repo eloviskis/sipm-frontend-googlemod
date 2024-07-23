@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -18,22 +18,22 @@ import AccountsPayable from './pages/AccountsPayable';
 const App = () => {
   return (
     <Router>
-      <Switch>
-        <Route exact path="/" component={Login} />
-        <Route path="/register" component={Register} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/profile" component={Profile} />
-        <Route path="/admin-dashboard" component={AdminDashboard} />
-        <Route path="/notifications" component={Notifications} />
-        <Route path="/appointment" component={Appointment} />
-        <Route path="/customization" component={Customization} />
-        <Route path="/services" component={Services} />
-        <Route path="/document-templates" component={DocumentTemplates} />
-        <Route path="/pre-consultations" component={PreConsultations} />
-        <Route path="/motivos" component={Motivos} />
-        <Route path="/accounts-receivable" component={AccountsReceivable} />
-        <Route path="/accounts-payable" component={AccountsPayable} />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/appointment" element={<Appointment />} />
+        <Route path="/customization" element={<Customization />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/document-templates" element={<DocumentTemplates />} />
+        <Route path="/pre-consultations" element={<PreConsultations />} />
+        <Route path="/motivos" element={<Motivos />} />
+        <Route path="/accounts-receivable" element={<AccountsReceivable />} />
+        <Route path="/accounts-payable" element={<AccountsPayable />} />
+      </Routes>
     </Router>
   );
 };
