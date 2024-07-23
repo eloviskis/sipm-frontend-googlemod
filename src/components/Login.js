@@ -1,65 +1,37 @@
 import React, { useState } from 'react';
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    tenant: '',  // Adicionando campo para tenant
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleLogin = async () => {
-    // Código para integração com o backend
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-    const data = await response.json();
-    console.log(data);
+  const handleLogin = (e) => {
+    e.preventDefault();
+    // Lógica de autenticação
+    console.log('Login efetuado com sucesso!');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <div className="login-container">
+      <h2>Entrar</h2>
+      <form onSubmit={handleLogin}>
+        <label htmlFor="email">Email:</label>
         <input
           type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="mb-4 p-2 w-full border border-gray-300 rounded"
+          id="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
         />
+        <label htmlFor="password">Senha:</label>
         <input
           type="password"
-          name="password"
-          placeholder="Senha"
-          value={formData.password}
-          onChange={handleChange}
-          className="mb-4 p-2 w-full border border-gray-300 rounded"
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
         />
-        <input
-          type="text"
-          name="tenant"
-          placeholder="Tenant"
-          value={formData.tenant}
-          onChange={handleChange}
-          className="mb-4 p-2 w-full border border-gray-300 rounded"
-        />
-        <button
-          onClick={handleLogin}
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-200"
-        >
-          Entrar
-        </button>
-      </div>
+        <button type="submit">Entrar</button>
+      </form>
     </div>
   );
 };
