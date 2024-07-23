@@ -1,5 +1,4 @@
-// src/pages/PreConsultations.js
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -8,10 +7,15 @@ const PreConsultations = () => {
   const [preConsultations, setPreConsultations] = useState([]);
 
   useEffect(() => {
-    // Fetch pre-consultations data
-    axios.get('/api/pre-consultations')
-      .then(response => setPreConsultations(response.data))
-      .catch(error => console.error('Erro ao buscar dados de pré-consultas:', error));
+    const fetchPreConsultations = async () => {
+      try {
+        const response = await axios.get('/api/pre-consultations');
+        setPreConsultations(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar pré-consultas:', error);
+      }
+    };
+    fetchPreConsultations();
   }, []);
 
   return (
@@ -29,7 +33,7 @@ const PreConsultations = () => {
                 {preConsultations.map(preConsultation => (
                   <li key={preConsultation.id} className="mb-4">
                     <p><strong>Nome:</strong> {preConsultation.name}</p>
-                    <p><strong>Descrição:</strong> {preConsultation.description}</p>
+                    <p><strong>Detalhes:</strong> {preConsultation.details}</p>
                   </li>
                 ))}
               </ul>

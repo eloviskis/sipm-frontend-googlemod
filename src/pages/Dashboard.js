@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 
 const Dashboard = () => {
   const [data, setData] = useState([]);
@@ -6,9 +9,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/dashboard');
-        const result = await response.json();
-        setData(result);
+        const response = await axios.get('/api/dashboard');
+        setData(response.data);
       } catch (error) {
         console.error('Erro ao buscar dados do painel:', error);
       }
@@ -17,16 +19,27 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold">Painel de Controle</h1>
-      <p className="mt-4">Bem-vindo ao painel de controle.</p>
-      <div>
-        {data.map((item, index) => (
-          <div key={index} className="p-4 mb-4 bg-white rounded shadow-md">
-            {/* Renderize os dados do item aqui */}
-            <p>{item.name}</p>
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64">
+        <Header />
+        <div className="p-8">
+          <h1 className="text-3xl font-bold mb-8">Painel de Controle</h1>
+          <div className="bg-white p-8 rounded shadow-md">
+            {data.length === 0 ? (
+              <p>Não há dados no painel.</p>
+            ) : (
+              <ul>
+                {data.map(item => (
+                  <li key={item.id} className="mb-4">
+                    <p><strong>Título:</strong> {item.title}</p>
+                    <p><strong>Descrição:</strong> {item.description}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );

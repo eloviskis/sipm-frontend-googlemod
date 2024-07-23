@@ -1,5 +1,4 @@
-// src/pages/Motivos.js
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -8,10 +7,15 @@ const Motivos = () => {
   const [motivos, setMotivos] = useState([]);
 
   useEffect(() => {
-    // Fetch motivos data
-    axios.get('/api/motivos')
-      .then(response => setMotivos(response.data))
-      .catch(error => console.error('Erro ao buscar dados de motivos:', error));
+    const fetchMotivos = async () => {
+      try {
+        const response = await axios.get('/api/motivos');
+        setMotivos(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar motivos de consulta:', error);
+      }
+    };
+    fetchMotivos();
   }, []);
 
   return (

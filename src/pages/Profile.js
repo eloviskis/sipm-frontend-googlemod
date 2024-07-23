@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 
 const Profile = () => {
   const [name, setName] = useState('');
@@ -7,12 +10,11 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch('/api/users/profile');
-        const result = await response.json();
-        setName(result.name);
-        setEmail(result.email);
+        const response = await axios.get('/api/profile');
+        setName(response.data.name);
+        setEmail(response.data.email);
       } catch (error) {
-        console.error('Erro ao buscar perfil:', error);
+        console.error('Erro ao buscar dados do perfil:', error);
       }
     };
     fetchProfile();
@@ -21,14 +23,8 @@ const Profile = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email }),
-      });
-      if (response.ok) {
+      const response = await axios.put('/api/profile', { name, email });
+      if (response.status === 200) {
         alert('Perfil atualizado com sucesso');
       } else {
         alert('Falha ao atualizar perfil');
@@ -39,42 +35,50 @@ const Profile = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold">Perfil</h1>
-      <form onSubmit={handleUpdate} className="mt-4">
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-            Nome
-          </label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64">
+        <Header />
+        <div className="p-8">
+          <h1 className="text-3xl font-bold mb-8">Perfil</h1>
+          <div className="bg-white p-8 rounded shadow-md">
+            <form onSubmit={handleUpdate}>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+                  Nome
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Atualizar Perfil
+              </button>
+            </form>
+          </div>
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
-          Atualizar Perfil
-        </button>
-      </form>
+      </div>
     </div>
   );
 };
