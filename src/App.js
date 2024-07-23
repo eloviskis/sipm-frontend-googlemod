@@ -15,7 +15,7 @@ import Motivos from './pages/Motivos';
 import AccountsReceivable from './pages/AccountsReceivable';
 import AccountsPayable from './pages/AccountsPayable';
 
-const App = () => {
+function App() {
   return (
     <Router>
       <Routes>
@@ -36,6 +36,6 @@ const App = () => {
       </Routes>
     </Router>
   );
-};
+}
 
 export default App;
