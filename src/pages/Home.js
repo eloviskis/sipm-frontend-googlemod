@@ -7,6 +7,7 @@ const Home = () => {
     heroTitle: 'Bem-vindo ao SIPM',
     heroSubtitle: 'O Sistema Integrado de Prontuário Médico (SIPM) facilita a gestão de sua clínica médica.',
     heroButtonText: 'Comece Agora',
+    heroImage: '', // URL da imagem
     features: [],
   });
 
@@ -14,12 +15,12 @@ const Home = () => {
     axios.get('/api/homepage-content').then((response) => {
       setContent(response.data || content);
     });
-  }, [content]);
+  }, []);
 
   return (
     <div>
       <Navbar />
-      <div className="hero bg-blue-600 text-white text-center py-20">
+      <div className="hero bg-blue-600 text-white text-center py-20" style={{ backgroundImage: `url(${content.heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="container mx-auto">
           <h1 className="text-5xl font-bold mb-4">{content.heroTitle}</h1>
           <p className="text-xl mb-8">{content.heroSubtitle}</p>
@@ -37,6 +38,7 @@ const Home = () => {
                 <div className="bg-white p-6 rounded-lg shadow-lg">
                   <h3 className="text-xl font-bold mb-4">{feature.title}</h3>
                   <p>{feature.description}</p>
+                  <img src={feature.icon} alt={feature.title} />
                 </div>
               </div>
             ))}

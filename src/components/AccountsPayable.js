@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
 
 const AccountsPayable = () => {
   const [accounts, setAccounts] = useState([]);
@@ -9,25 +10,27 @@ const AccountsPayable = () => {
   });
 
   useEffect(() => {
-    // Simulação de requisição para obter contas a pagar existentes
+    // Requisição para obter contas a pagar existentes usando Axios
     const fetchAccounts = async () => {
-      const response = await fetch('/api/accounts-payable');
-      const data = await response.json();
-      setAccounts(data);
+      try {
+        const response = await axios.get('/api/accounts-payable');
+        setAccounts(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar contas a pagar:', error);
+      }
     };
     fetchAccounts();
   }, []);
 
   const handleAddAccount = async () => {
-    // Código para adicionar nova conta ao backend
-    const response = await fetch('/api/accounts-payable', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newAccount),
-    });
-    const data = await response.json();
-    setAccounts([...accounts, data]);
-    setNewAccount({ name: '', amount: '', dueDate: '' });
+    // Código para adicionar nova conta ao backend usando Axios
+    try {
+      const response = await axios.post('/api/accounts-payable', newAccount);
+      setAccounts([...accounts, response.data]);
+      setNewAccount({ name: '', amount: '', dueDate: '' });
+    } catch (error) {
+      console.error('Erro ao adicionar nova conta:', error);
+    }
   };
 
   return (
