@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
