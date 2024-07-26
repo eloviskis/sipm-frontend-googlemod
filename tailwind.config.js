@@ -6,12 +6,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#1a202c', // Cor principal
-        secondary: '#2d3748', // Cor secundária
-        accent: '#4a5568', // Cor de destaque
+        primary: '#1a202c',
+        secondary: '#2d3748',
+        accent: '#4a5568',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'], // Fonte padrão
+        sans: ['Inter', 'sans-serif'],
       },
     },
   },
