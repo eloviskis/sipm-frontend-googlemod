@@ -1,19 +1,28 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const Appointment = () => {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [doctor, setDoctor] = useState('');
+  const [error, setError] = useState('');
 
   const handleAppointment = async () => {
-    // Código para integração com o backend
-    const response = await fetch('/api/appointments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date, time, doctor }),
-    });
-    const data = await response.json();
-    console.log(data);
+    try {
+      const response = await axios.post('/api/appointments', {
+        date,
+        time,
+        doctor,
+      });
+      console.log('Consulta agendada com sucesso!', response.data);
+      // Limpar os campos após o agendamento
+      setDate('');
+      setTime('');
+      setDoctor('');
+    } catch (error) {
+      setError('Erro ao agendar a consulta. Tente novamente.');
+      console.error('Erro ao agendar a consulta:', error);
+    }
   };
 
   return (
@@ -45,6 +54,7 @@ const Appointment = () => {
         >
           Agendar
         </button>
+        {error && <p className="error text-red-500 mt-4">{error}</p>}
       </div>
     </div>
   );

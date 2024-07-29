@@ -1,29 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Services = () => {
   const [services, setServices] = useState([]);
   const [newService, setNewService] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Simulação de requisição para obter serviços existentes
     const fetchServices = async () => {
-      const response = await fetch('/api/services');
-      const data = await response.json();
-      setServices(data);
+      try {
+        const response = await axios.get('/api/services');
+        setServices(response.data);
+      } catch (error) {
+        console.error('Erro ao obter os serviços:', error);
+      }
     };
     fetchServices();
   }, []);
 
   const handleAddService = async () => {
-    // Código para adicionar novo serviço ao backend
-    const response = await fetch('/api/services', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newService }),
-    });
-    const data = await response.json();
-    setServices([...services, data]);
-    setNewService('');
+    try {
+      const response = await axios.post('/api/services', { name: newService });
+      setServices([...services, response.data]);
+      setNewService('');
+    } catch (error) {
+      setError('Erro ao adicionar o serviço. Tente novamente.');
+      console.error('Erro ao adicionar o serviço:', error);
+    }
   };
 
   return (
@@ -45,6 +48,7 @@ const Services = () => {
             Adicionar Serviço
           </button>
         </div>
+        {error && <p className="error text-red-500">{error}</p>}
         <ul>
           {services.map((service, index) => (
             <li key={index} className="mb-4 p-4 bg-gray-200 rounded">

@@ -1,29 +1,35 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const PreConsultations = () => {
   const [preConsultations, setPreConsultations] = useState([]);
   const [newPreConsultation, setNewPreConsultation] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Simulação de requisição para obter pré-consultas existentes
     const fetchPreConsultations = async () => {
-      const response = await fetch('/api/pre-consultations');
-      const data = await response.json();
-      setPreConsultations(data);
+      try {
+        const response = await axios.get('/api/pre-consultations');
+        setPreConsultations(response.data);
+      } catch (error) {
+        setError('Erro ao obter pré-consultas.');
+        console.error('Erro ao obter pré-consultas:', error);
+      }
     };
     fetchPreConsultations();
   }, []);
 
   const handleAddPreConsultation = async () => {
-    // Código para adicionar nova pré-consulta ao backend
-    const response = await fetch('/api/pre-consultations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newPreConsultation }),
-    });
-    const data = await response.json();
-    setPreConsultations([...preConsultations, data]);
-    setNewPreConsultation('');
+    try {
+      const response = await axios.post('/api/pre-consultations', {
+        name: newPreConsultation,
+      });
+      setPreConsultations([...preConsultations, response.data]);
+      setNewPreConsultation('');
+    } catch (error) {
+      setError('Erro ao adicionar pré-consulta. Tente novamente.');
+      console.error('Erro ao adicionar pré-consulta:', error);
+    }
   };
 
   return (
@@ -45,6 +51,7 @@ const PreConsultations = () => {
             Adicionar Pré-Consulta
           </button>
         </div>
+        {error && <p className="error text-red-500 mb-4">{error}</p>}
         <ul>
           {preConsultations.map((preConsultation, index) => (
             <li key={index} className="mb-4 p-4 bg-gray-200 rounded">

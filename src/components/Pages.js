@@ -1,34 +1,40 @@
 import React, { useState, useEffect } from 'react';
+import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
 
 const Pages = () => {
   const [pages, setPages] = useState([]);
   const [newPage, setNewPage] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchPages = async () => {
-      const response = await fetch('/api/pages');
-      const data = await response.json();
-      setPages(data);
+      try {
+        const response = await axios.get('/api/pages');
+        setPages(response.data);
+      } catch (error) {
+        setError('Erro ao buscar páginas.');
+        console.error('Erro ao buscar páginas:', error);
+      }
     };
-
     fetchPages();
   }, []);
 
   const handleCreatePage = async () => {
-    const response = await fetch('/api/pages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: newPage }),
-    });
-    const data = await response.json();
-    setPages([...pages, data]);
-    setNewPage('');
+    try {
+      const response = await axios.post('/api/pages', { title: newPage });
+      setPages([...pages, response.data]);
+      setNewPage('');
+    } catch (error) {
+      setError('Erro ao criar nova página.');
+      console.error('Erro ao criar nova página:', error);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="bg-blue-100 p-6 rounded shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4 text-center text-blue-700">Gerenciamento de Páginas</h2>
+        {error && <p className="error text-red-500 mb-4">{error}</p>}
         <ul className="mb-4">
           {pages.map((page) => (
             <li key={page.id} className="mb-2 bg-white p-2 rounded shadow">{page.title}</li>

@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const Customization = () => {
   const [themeColor, setThemeColor] = useState('#ffffff');
   const [language, setLanguage] = useState('pt');
+  const [error, setError] = useState('');
 
   const handleSaveCustomization = async () => {
-    // Código para integração com o backend
-    const response = await fetch('/api/customization', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ themeColor, language }),
-    });
-    const data = await response.json();
-    console.log(data);
+    try {
+      const response = await axios.post('/api/customization', {
+        themeColor,
+        language,
+      });
+      console.log('Customização salva com sucesso!', response.data);
+    } catch (error) {
+      setError('Erro ao salvar a customização. Tente novamente.');
+      console.error('Erro ao salvar a customização:', error);
+    }
   };
 
   return (
@@ -48,6 +52,7 @@ const Customization = () => {
         >
           Salvar
         </button>
+        {error && <p className="error text-red-500 mt-4">{error}</p>}
       </div>
     </div>
   );

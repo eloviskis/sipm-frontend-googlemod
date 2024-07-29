@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Lógica de autenticação
-    console.log('Login efetuado com sucesso!');
+    try {
+      const response = await axios.post('/api/auth/login', { email, password });
+      // Sucesso na autenticação
+      console.log('Login efetuado com sucesso!');
+      // Redirecionar ou realizar outra ação pós-login
+    } catch (error) {
+      setError('Falha na autenticação. Verifique suas credenciais.');
+    }
   };
 
   return (
@@ -32,6 +40,7 @@ const Login = () => {
         />
         <button type="submit">Entrar</button>
       </form>
+      {error && <p className="error">{error}</p>}
     </div>
   );
 };

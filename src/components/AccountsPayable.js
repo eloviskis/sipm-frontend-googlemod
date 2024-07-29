@@ -8,14 +8,15 @@ const AccountsPayable = () => {
     amount: '',
     dueDate: ''
   });
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Requisição para obter contas a pagar existentes usando Axios
     const fetchAccounts = async () => {
       try {
         const response = await axios.get('/api/accounts-payable');
         setAccounts(response.data);
       } catch (error) {
+        setError('Erro ao buscar contas a pagar.');
         console.error('Erro ao buscar contas a pagar:', error);
       }
     };
@@ -23,12 +24,12 @@ const AccountsPayable = () => {
   }, []);
 
   const handleAddAccount = async () => {
-    // Código para adicionar nova conta ao backend usando Axios
     try {
       const response = await axios.post('/api/accounts-payable', newAccount);
       setAccounts([...accounts, response.data]);
       setNewAccount({ name: '', amount: '', dueDate: '' });
     } catch (error) {
+      setError('Erro ao adicionar nova conta.');
       console.error('Erro ao adicionar nova conta:', error);
     }
   };
@@ -37,6 +38,7 @@ const AccountsPayable = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Contas a Pagar</h2>
+        {error && <p className="error text-red-500 mb-4">{error}</p>}
         <div className="mb-4">
           <input
             type="text"

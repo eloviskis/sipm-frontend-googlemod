@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({
@@ -10,11 +11,13 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    // Simulação de requisição para obter dados do perfil do usuário
     const fetchProfileData = async () => {
-      const response = await fetch('/api/profile');
-      const data = await response.json();
-      setProfileData(data);
+      try {
+        const response = await axios.get('/api/profile');
+        setProfileData(response.data);
+      } catch (error) {
+        console.error('Erro ao obter os dados do perfil:', error);
+      }
     };
     fetchProfileData();
   }, []);
@@ -27,14 +30,12 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
-    // Código para salvar os dados atualizados do perfil
-    const response = await fetch('/api/profile', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(profileData),
-    });
-    const data = await response.json();
-    console.log('Perfil atualizado com sucesso:', data);
+    try {
+      const response = await axios.put('/api/profile', profileData);
+      console.log('Perfil atualizado com sucesso:', response.data);
+    } catch (error) {
+      console.error('Erro ao atualizar o perfil:', error);
+    }
   };
 
   return (
