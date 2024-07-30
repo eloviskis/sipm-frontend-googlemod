@@ -1,4 +1,3 @@
-[Atualizar]
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,12 +11,12 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const error = useSelector((state) => state.auth.error);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     await dispatch(login({ email, password }));
-    const user = useSelector((state) => state.auth.user);
-    if (user) {
+    if (isAuthenticated) {
       navigate('/dashboard');
     }
   };

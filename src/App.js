@@ -16,7 +16,8 @@ import Motivos from './pages/Motivos';
 import AccountsReceivable from './pages/AccountsReceivable';
 import AccountsPayable from './pages/AccountsPayable';
 import Telemedicine from './components/Telemedicine';
-import ForgotPassword from './pages/ForgotPassword'; 
+import ForgotPassword from './pages/ForgotPassword';
+import PrivateRoute from './components/PrivateRoute'; // Certifique-se de que o caminho está correto
 
 function App() {
   return (
