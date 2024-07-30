@@ -15,6 +15,8 @@ import PreConsultations from './pages/PreConsultations';
 import Motivos from './pages/Motivos';
 import AccountsReceivable from './pages/AccountsReceivable';
 import AccountsPayable from './pages/AccountsPayable';
+import Telemedicine from './components/Telemedicine';
+import ForgotPassword from './pages/ForgotPassword'; 
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
         <Route path="/motivos" element={<Motivos />} />
         <Route path="/accounts-receivable" element={<AccountsReceivable />} />
         <Route path="/accounts-payable" element={<AccountsPayable />} />
+        <Route path="/telemedicine" element={<PrivateRoute><Telemedicine /></PrivateRoute>} />
+        <Route path="/forgot-password" element={<ForgotPassword />} /> {/* Adicionar a rota */}
       </Routes>
     </Router>
   );

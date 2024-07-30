@@ -1,6 +1,8 @@
+[Atualizar]
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../store/authSlice';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
@@ -8,18 +10,15 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const error = useSelector((state) => state.auth.error);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post('/api/auth/login', { email, password });
-      if (response.status === 200) {
-        navigate('/dashboard');
-      } else {
-        alert('Login falhou');
-      }
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
+    await dispatch(login({ email, password }));
+    const user = useSelector((state) => state.auth.user);
+    if (user) {
+      navigate('/dashboard');
     }
   };
 
@@ -58,6 +57,7 @@ const Login = () => {
                   required
                 />
               </div>
+              {error && <div className="mb-4 text-red-500 text-sm">{error}</div>} {/* Exibir mensagem de erro */}
               <div className="flex items-center justify-between">
                 <button
                   type="submit"
@@ -65,6 +65,12 @@ const Login = () => {
                 >
                   Entrar
                 </button>
+                <a
+                  href="/forgot-password"
+                  className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+                >
+                  Esqueci minha senha
+                </a>
               </div>
             </form>
           </div>
