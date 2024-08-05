@@ -1,5 +1,23 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 const Customization = () => {
   const [themeColor, setThemeColor] = useState('#ffffff');
@@ -8,11 +26,17 @@ const Customization = () => {
 
   const handleSaveCustomization = async () => {
     try {
-      const response = await axios.post('/api/customization', {
-        themeColor,
-        language,
-      });
-      console.log('Customização salva com sucesso!', response.data);
+      const user = auth.currentUser;
+      if (user) {
+        const customizationRef = doc(db, 'customizations', user.uid);
+        await setDoc(customizationRef, {
+          themeColor,
+          language,
+        }, { merge: true });
+        console.log('Customização salva com sucesso!');
+      } else {
+        setError('Usuário não autenticado.');
+      }
     } catch (error) {
       setError('Erro ao salvar a customização. Tente novamente.');
       console.error('Erro ao salvar a customização:', error);
