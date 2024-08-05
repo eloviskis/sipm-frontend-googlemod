@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar } from '@mui/material';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 
 // Configuração do Firebase
 const firebaseConfig = {
@@ -20,7 +22,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const Header = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -37,8 +39,12 @@ const Header = () => {
     fetchUserData();
   }, []);
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   const handleLogout = async () => {
@@ -51,33 +57,48 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-      <div className="relative">
-        <div className="flex items-center space-x-4 cursor-pointer" onClick={toggleModal}>
-          <span className="font-medium">{user ? user.name : 'Carregando...'}</span>
-          <img src={user ? user.avatarUrl : 'path-to-default-avatar.jpg'} alt="avatar" className="w-10 h-10 rounded-full" />
-        </div>
-        {isModalOpen && (
-          <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg">
-            <div className="flex p-4">
-              <img src={user ? user.avatarUrl : 'path-to-default-avatar.jpg'} alt="avatar" className="w-12 h-12 rounded-full" />
-              <div className="ml-4">
-                <h3 className="font-semibold">{user ? user.name : 'Carregando...'}</h3>
-                <p className="text-gray-500">{user ? user.email : 'Carregando...'}</p>
-              </div>
-            </div>
-            <div className="border-t border-gray-200">
-              <ul className="p-4">
-                <li className="p-2 hover:bg-gray-100 cursor-pointer">Configurações do Serviço</li>
-                <li className="p-2 hover:bg-gray-100 cursor-pointer">Customização</li>
-                <li className="p-2 hover:bg-gray-100 cursor-pointer">Meu Plano</li>
-                <li className="p-2 hover:bg-gray-100 cursor-pointer" onClick={handleLogout}>Sair</li>
-              </ul>
-            </div>
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Sistema Médico
+        </Typography>
+        {user && (
+          <div>
+            <IconButton
+              size="large"
+              edge="end"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleMenu}
+              color="inherit"
+            >
+              <Avatar alt="avatar" src={user.avatarUrl} />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={handleClose}>Configurações do Serviço</MenuItem>
+              <MenuItem onClick={handleClose}>Customização</MenuItem>
+              <MenuItem onClick={handleClose}>Meu Plano</MenuItem>
+              <MenuItem onClick={handleLogout}>Sair</MenuItem>
+            </Menu>
           </div>
         )}
-      </div>
-    </header>
+      </Toolbar>
+    </AppBar>
   );
 };
 
