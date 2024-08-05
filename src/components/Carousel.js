@@ -1,13 +1,39 @@
 import React, { useState, useEffect } from 'react';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const Carousel = () => {
   const [current, setCurrent] = useState(0);
-  const [images, setImages] = useState([
-    // Adicione URLs de imagens aqui
-    'https://via.placeholder.com/400x300?text=Imagem+1',
-    'https://via.placeholder.com/400x300?text=Imagem+2',
-    'https://via.placeholder.com/400x300?text=Imagem+3'
-  ]);
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'carouselImages'));
+        const imagesData = querySnapshot.docs.map(doc => doc.data().url);
+        setImages(imagesData);
+      } catch (error) {
+        console.error('Erro ao buscar imagens do carrossel:', error);
+      }
+    };
+
+    fetchImages();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {

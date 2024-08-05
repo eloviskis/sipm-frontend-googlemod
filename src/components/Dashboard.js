@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -12,16 +28,14 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [usersRes, servicesRes, appointmentsRes] = await Promise.all([
-          axios.get('/api/users/stats'),
-          axios.get('/api/services/stats'),
-          axios.get('/api/appointments/stats'),
-        ]);
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const servicesSnapshot = await getDocs(collection(db, 'services'));
+        const appointmentsSnapshot = await getDocs(collection(db, 'appointments'));
 
         setStats({
-          users: usersRes.data.count,
-          services: servicesRes.data.count,
-          appointments: appointmentsRes.data.count,
+          users: usersSnapshot.size,
+          services: servicesSnapshot.size,
+          appointments: appointmentsSnapshot.size,
         });
       } catch (error) {
         setError('Erro ao carregar as estatísticas.');

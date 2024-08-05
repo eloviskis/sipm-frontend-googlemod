@@ -1,5 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({
@@ -9,13 +27,23 @@ const Profile = () => {
     cpf: '',
     cnpj: '',
   });
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get('/api/profile');
-        setProfileData(response.data);
+        const user = auth.currentUser;
+        if (user) {
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setProfileData(docSnap.data());
+          } else {
+            console.log('No such document!');
+          }
+        }
       } catch (error) {
+        setError('Erro ao obter os dados do perfil.');
         console.error('Erro ao obter os dados do perfil:', error);
       }
     };
@@ -31,9 +59,14 @@ const Profile = () => {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put('/api/profile', profileData);
-      console.log('Perfil atualizado com sucesso:', response.data);
+      const user = auth.currentUser;
+      if (user) {
+        const docRef = doc(db, 'users', user.uid);
+        await updateDoc(docRef, profileData);
+        console.log('Perfil atualizado com sucesso');
+      }
     } catch (error) {
+      setError('Erro ao atualizar o perfil.');
       console.error('Erro ao atualizar o perfil:', error);
     }
   };
@@ -93,6 +126,7 @@ const Profile = () => {
         >
           Salvar
         </button>
+        {error && <p className="error text-red-500 mt-4">{error}</p>}
       </div>
     </div>
   );

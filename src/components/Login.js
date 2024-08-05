@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -8,8 +8,9 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    const auth = getAuth();
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      await signInWithEmailAndPassword(auth, email, password);
       // Sucesso na autenticação
       console.log('Login efetuado com sucesso!');
       // Redirecionar ou realizar outra ação pós-login

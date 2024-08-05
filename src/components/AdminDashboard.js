@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -13,18 +29,16 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [usersRes, reportsRes, settingsRes, notificationsRes] = await Promise.all([
-          axios.get('/api/admin/users/stats'),
-          axios.get('/api/admin/reports/stats'),
-          axios.get('/api/admin/settings/stats'),
-          axios.get('/api/admin/notifications/stats'),
-        ]);
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const reportsSnapshot = await getDocs(collection(db, 'reports'));
+        const settingsSnapshot = await getDocs(collection(db, 'settings'));
+        const notificationsSnapshot = await getDocs(collection(db, 'notifications'));
 
         setStats({
-          users: usersRes.data.count,
-          reports: reportsRes.data.count,
-          settings: settingsRes.data.count,
-          notifications: notificationsRes.data.count,
+          users: usersSnapshot.size,
+          reports: reportsSnapshot.size,
+          settings: settingsSnapshot.size,
+          notifications: notificationsSnapshot.size,
         });
       } catch (error) {
         setError('Erro ao carregar as estatísticas administrativas.');

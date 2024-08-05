@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -21,9 +22,22 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    const auth = getAuth();
+    const db = getFirestore();
     try {
-      const response = await axios.post('/api/register', formData);
-      console.log('Registro efetuado com sucesso!', response.data);
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
+
+      // Salvar dados adicionais no Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        email: formData.email,
+        role: formData.role,
+        cpf: formData.role === 'doctor' ? formData.cpf : '',
+        cnpj: formData.role === 'clinic' ? formData.cnpj : '',
+        financialResponsible: formData.role === 'clinic' ? formData.financialResponsible : '',
+      });
+
+      console.log('Registro efetuado com sucesso!', user);
     } catch (error) {
       setError('Falha no registro. Verifique os dados e tente novamente.');
       console.error('Erro ao registrar:', error);
@@ -109,4 +123,3 @@ const Register = () => {
 };
 
 export default Register;
-  
