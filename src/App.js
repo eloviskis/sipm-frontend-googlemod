@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -22,6 +22,8 @@ import PrivateRoute from './components/PrivateRoute'; // Certifique-se de que o 
 // Importar Firebase e inicializar
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 
 // Configuração do Firebase
 const firebaseConfig = {
@@ -37,15 +39,44 @@ const firebaseConfig = {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
 function App() {
-  const [user, setUser] = React.useState(null);
+  const [user, setUser] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
     return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const fetchCustomization = async () => {
+      try {
+        const docRef = doc(db, 'settings', 'customization');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const { favicon } = docSnap.data();
+          if (favicon) {
+            const faviconURL = await getDownloadURL(ref(storage, favicon));
+            const link = document.querySelector("link[rel~='icon']");
+            if (link) {
+              link.href = faviconURL;
+            } else {
+              const newLink = document.createElement('link');
+              newLink.rel = 'icon';
+              newLink.href = faviconURL;
+              document.head.appendChild(newLink);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar customização:', error);
+      }
+    };
+    fetchCustomization();
   }, []);
 
   return (
