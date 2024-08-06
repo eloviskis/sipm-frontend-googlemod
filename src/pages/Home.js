@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { Container, Box, Typography, Button, Grid, Card, CardContent, CardMedia } from '@mui/material';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const Home = () => {
   const [content, setContent] = useState({
@@ -12,39 +29,73 @@ const Home = () => {
   });
 
   useEffect(() => {
-    axios.get('/api/homepage-content').then((response) => {
-      setContent(response.data || content);
-    });
+    const fetchContent = async () => {
+      const docRef = doc(db, 'homepage-content', 'content');
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setContent(docSnap.data());
+      }
+    };
+    fetchContent();
   }, []);
 
   return (
     <div>
       <Navbar />
-      <div className="hero bg-blue-600 text-white text-center py-20" style={{ backgroundImage: `url(${content.heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div className="container mx-auto">
-          <h1 className="text-5xl font-bold mb-4">{content.heroTitle}</h1>
-          <p className="text-xl mb-8">{content.heroSubtitle}</p>
-          <a href="/register" className="bg-white text-blue-600 px-6 py-3 rounded-full font-bold hover:bg-gray-200 transition duration-300">
+      <Box
+        sx={{
+          backgroundImage: `url(${content.heroImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          color: 'white',
+          textAlign: 'center',
+          py: 20,
+        }}
+      >
+        <Container>
+          <Typography variant="h2" component="h1" gutterBottom>
+            {content.heroTitle}
+          </Typography>
+          <Typography variant="h5" component="p" gutterBottom>
+            {content.heroSubtitle}
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            href="/register"
+            sx={{ mt: 2 }}
+          >
             {content.heroButtonText}
-          </a>
-        </div>
-      </div>
-      <div className="container mx-auto p-8">
-        <section className="features py-16">
-          <h2 className="text-3xl font-bold text-center mb-8">Funcionalidades</h2>
-          <div className="flex flex-wrap justify-center space-y-8">
-            {content.features.map((feature, index) => (
-              <div key={index} className="w-full md:w-1/3 p-4">
-                <div className="bg-white p-6 rounded-lg shadow-lg">
-                  <h3 className="text-xl font-bold mb-4">{feature.title}</h3>
-                  <p>{feature.description}</p>
-                  <img src={feature.icon} alt={feature.title} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
+          </Button>
+        </Container>
+      </Box>
+      <Container sx={{ py: 8 }}>
+        <Typography variant="h4" component="h2" textAlign="center" gutterBottom>
+          Funcionalidades
+        </Typography>
+        <Grid container spacing={4} justifyContent="center">
+          {content.features.map((feature, index) => (
+            <Grid item key={index} xs={12} sm={6} md={4}>
+              <Card>
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={feature.icon}
+                  alt={feature.title}
+                />
+                <CardContent>
+                  <Typography variant="h5" component="div">
+                    {feature.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {feature.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
     </div>
   );
 };

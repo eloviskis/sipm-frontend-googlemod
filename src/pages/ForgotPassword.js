@@ -1,7 +1,24 @@
 import React, { useState } from 'react';
-import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { initializeApp } from 'firebase/app';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { Container, Typography, TextField, Button, Box, Alert } from '@mui/material';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -11,8 +28,8 @@ const ForgotPassword = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/auth/forgot-password', { email });
-      setMessage(response.data.message);
+      await sendPasswordResetEmail(auth, email);
+      setMessage('Link de redefinição de senha enviado para o email.');
       setError('');
     } catch (error) {
       setError('Erro ao solicitar redefinição de senha.');
@@ -25,36 +42,27 @@ const ForgotPassword = () => {
       <Sidebar />
       <div className="flex-1 ml-64">
         <Header />
-        <div className="p-8">
-          <h1 className="text-3xl font-bold mb-8">Redefinição de Senha</h1>
-          <div className="bg-white p-8 rounded shadow-md">
-            <form onSubmit={handleForgotPassword}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              {message && <div className="mb-4 text-green-500 text-sm">{message}</div>} {/* Exibir mensagem de sucesso */}
-              {error && <div className="mb-4 text-red-500 text-sm">{error}</div>} {/* Exibir mensagem de erro */}
-              <div className="flex items-center justify-between">
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                >
-                  Enviar Link de Redefinição
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <Container maxWidth="sm" sx={{ mt: 8 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Redefinição de Senha
+          </Typography>
+          <Box component="form" onSubmit={handleForgotPassword} sx={{ mt: 4 }}>
+            <TextField
+              label="Email"
+              type="email"
+              fullWidth
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Enviar Link de Redefinição
+            </Button>
+          </Box>
+        </Container>
       </div>
     </div>
   );

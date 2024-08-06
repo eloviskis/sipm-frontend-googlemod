@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../store/authSlice';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { TextField, Button, Container, Box, Typography, Alert } from '@mui/material';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,69 +14,75 @@ const Login = () => {
   const dispatch = useDispatch();
   const error = useSelector((state) => state.auth.error);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const auth = getAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    await dispatch(login({ email, password }));
-    if (isAuthenticated) {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      dispatch(login({ email, password }));
       navigate('/dashboard');
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
     }
   };
 
   return (
     <div className="flex">
       <Sidebar />
-      <div className="flex-1 ml-64">
+      <Box component="main" sx={{ flexGrow: 1, ml: 64 }}>
         <Header />
-        <div className="p-8">
-          <h1 className="text-3xl font-bold mb-8">Login</h1>
-          <div className="bg-white p-8 rounded shadow-md">
-            <form onSubmit={handleLogin}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                  Senha
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              {error && <div className="mb-4 text-red-500 text-sm">{error}</div>} {/* Exibir mensagem de erro */}
-              <div className="flex items-center justify-between">
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                >
-                  Entrar
-                </button>
-                <a
-                  href="/forgot-password"
-                  className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-                >
-                  Esqueci minha senha
-                </a>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+        <Container>
+          <Box sx={{ my: 8 }}>
+            <Typography variant="h3" component="h1" gutterBottom>
+              Login
+            </Typography>
+            <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email"
+                name="email"
+                autoComplete="email"
+                autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Senha"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Entrar
+              </Button>
+              <Button
+                fullWidth
+                variant="text"
+                sx={{ mt: 1 }}
+                href="/forgot-password"
+              >
+                Esqueci minha senha
+              </Button>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
     </div>
   );
 };

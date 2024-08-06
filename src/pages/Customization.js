@@ -1,17 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const Customization = () => {
   const [theme, setTheme] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     const fetchTheme = async () => {
       try {
-        const response = await axios.get('/api/theme');
-        setTheme(response.data.theme);
+        const docRef = doc(db, 'settings', 'theme');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setTheme(docSnap.data().theme);
+        } else {
+          console.log('No such document!');
+        }
       } catch (error) {
+        setError('Erro ao buscar tema');
         console.error('Erro ao buscar tema:', error);
       }
     };
@@ -21,13 +46,10 @@ const Customization = () => {
   const handleThemeChange = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put('/api/theme', { theme });
-      if (response.status === 200) {
-        alert('Tema atualizado com sucesso');
-      } else {
-        alert('Falha ao atualizar tema');
-      }
+      await setDoc(doc(db, 'settings', 'theme'), { theme });
+      setSuccess('Tema atualizado com sucesso');
     } catch (error) {
+      setError('Erro ao atualizar tema');
       console.error('Erro ao atualizar tema:', error);
     }
   };
@@ -37,32 +59,28 @@ const Customization = () => {
       <Sidebar />
       <div className="flex-1 ml-64">
         <Header />
-        <div className="p-8">
-          <h1 className="text-3xl font-bold mb-8">Personalização</h1>
-          <div className="bg-white p-8 rounded shadow-md">
-            <form onSubmit={handleThemeChange}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="theme">
-                  Tema
-                </label>
-                <input
-                  type="text"
-                  id="theme"
-                  value={theme}
-                  onChange={(e) => setTheme(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
+        <Container maxWidth="md">
+          <Box mt={8}>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Personalização
+            </Typography>
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+            <Box component="form" onSubmit={handleThemeChange} mt={2}>
+              <TextField
+                label="Tema"
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+                fullWidth
+                margin="normal"
+                required
+              />
+              <Button type="submit" variant="contained" color="primary" fullWidth>
                 Atualizar Tema
-              </button>
-            </form>
-          </div>
-        </div>
+              </Button>
+            </Box>
+          </Box>
+        </Container>
       </div>
     </div>
   );

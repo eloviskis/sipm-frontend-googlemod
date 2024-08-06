@@ -1,16 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { Container, Typography, List, ListItem, ListItemText, Box, Alert } from '@mui/material';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const Feed = () => {
   const [feed, setFeed] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch feed data
-    axios.get('/api/feed')
-      .then(response => setFeed(response.data))
-      .catch(error => console.error('Erro ao buscar dados do feed:', error));
+    const fetchFeed = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'feed'));
+        const feedData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setFeed(feedData);
+      } catch (error) {
+        setError('Erro ao buscar dados do feed.');
+        console.error('Erro ao buscar dados do feed:', error);
+      }
+    };
+    fetchFeed();
   }, []);
 
   return (
@@ -18,23 +43,28 @@ const Feed = () => {
       <Sidebar />
       <div className="flex-1 ml-64">
         <Header />
-        <div className="p-8">
-          <h1 className="text-3xl font-bold mb-8">Feed</h1>
-          <div className="bg-white p-8 rounded shadow-md">
+        <Container maxWidth="md" sx={{ mt: 8 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Feed
+          </Typography>
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          <Box sx={{ backgroundColor: 'white', p: 4, borderRadius: 1, boxShadow: 3 }}>
             {feed.length === 0 ? (
-              <p>Não há atualizações no feed.</p>
+              <Typography>Não há atualizações no feed.</Typography>
             ) : (
-              <ul>
+              <List>
                 {feed.map(item => (
-                  <li key={item.id} className="mb-4">
-                    <p><strong>Título:</strong> {item.title}</p>
-                    <p><strong>Conteúdo:</strong> {item.content}</p>
-                  </li>
+                  <ListItem key={item.id} sx={{ mb: 2, backgroundColor: '#f9f9f9', borderRadius: 1 }}>
+                    <ListItemText
+                      primary={<Typography variant="h6">{item.title}</Typography>}
+                      secondary={item.content}
+                    />
+                  </ListItem>
                 ))}
-              </ul>
+              </List>
             )}
-          </div>
-        </div>
+          </Box>
+        </Container>
       </div>
     </div>
   );

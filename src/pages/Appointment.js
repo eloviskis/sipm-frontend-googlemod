@@ -1,23 +1,51 @@
 import React, { useState } from 'react';
-import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const Appointment = () => {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [reason, setReason] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleAppointment = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/appointments', { date, time, reason });
-      if (response.status === 200) {
-        alert('Consulta agendada com sucesso');
+      const docRef = await addDoc(collection(db, 'appointments'), {
+        date,
+        time,
+        reason,
+        createdAt: new Date(),
+      });
+      if (docRef.id) {
+        setSuccess('Consulta agendada com sucesso');
+        setDate('');
+        setTime('');
+        setReason('');
       } else {
-        alert('Falha ao agendar consulta');
+        setError('Falha ao agendar consulta');
       }
     } catch (error) {
+      setError('Erro ao agendar consulta');
       console.error('Erro ao agendar consulta:', error);
     }
   };
@@ -27,57 +55,50 @@ const Appointment = () => {
       <Sidebar />
       <div className="flex-1 ml-64">
         <Header />
-        <div className="p-8">
-          <h1 className="text-3xl font-bold mb-8">Agendar Consulta</h1>
-          <div className="bg-white p-8 rounded shadow-md">
-            <form onSubmit={handleAppointment}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
-                  Data
-                </label>
-                <input
-                  type="date"
-                  id="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="time">
-                  Hora
-                </label>
-                <input
-                  type="time"
-                  id="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="reason">
-                  Motivo
-                </label>
-                <textarea
-                  id="reason"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
+        <Container maxWidth="md">
+          <Box mt={8}>
+            <Typography variant="h4" component="h1" gutterBottom>
+              Agendar Consulta
+            </Typography>
+            {error && <Alert severity="error">{error}</Alert>}
+            {success && <Alert severity="success">{success}</Alert>}
+            <Box component="form" onSubmit={handleAppointment} mt={2}>
+              <TextField
+                label="Data"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                required
+              />
+              <TextField
+                label="Hora"
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                required
+              />
+              <TextField
+                label="Motivo"
+                multiline
+                rows={4}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                fullWidth
+                margin="normal"
+                required
+              />
+              <Button type="submit" variant="contained" color="primary" fullWidth>
                 Agendar
-              </button>
-            </form>
-          </div>
-        </div>
+              </Button>
+            </Box>
+          </Box>
+        </Container>
       </div>
     </div>
   );
