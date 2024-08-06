@@ -12,7 +12,7 @@ const firebaseConfig = {
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 // Inicializar Firebase
@@ -29,7 +29,7 @@ const Messaging = () => {
     const fetchMessages = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'messages'));
-        const messagesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const messagesData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setMessages(messagesData);
       } catch (error) {
         setError('Erro ao obter mensagens.');
@@ -47,7 +47,7 @@ const Messaging = () => {
         const docRef = await addDoc(collection(db, 'messages'), {
           content: newMessage,
           uid: user.uid,
-          createdAt: new Date()
+          createdAt: new Date(),
         });
         setMessages([...messages, { id: docRef.id, content: newMessage }]);
         setNewMessage('');
@@ -65,7 +65,11 @@ const Messaging = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Mensagens
       </Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
       <List sx={{ mb: 4 }}>
         {messages.map((message) => (
           <ListItem key={message.id} sx={{ mb: 1, backgroundColor: '#f9f9f9', borderRadius: 1 }}>
@@ -80,12 +84,7 @@ const Messaging = () => {
         fullWidth
         sx={{ mb: 2 }}
       />
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSendMessage}
-        fullWidth
-      >
+      <Button variant="contained" color="primary" onClick={handleSendMessage} fullWidth>
         Enviar
       </Button>
     </Container>

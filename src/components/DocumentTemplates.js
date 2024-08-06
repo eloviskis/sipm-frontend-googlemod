@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
+import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { Container, Typography, TextField, Button, List, ListItem, ListItemText, Alert } from '@mui/material';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const DocumentTemplates = () => {
   const [templates, setTemplates] = useState([]);
@@ -9,20 +26,22 @@ const DocumentTemplates = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await axios.get('/api/document-templates');
-        setTemplates(response.data);
+        const querySnapshot = await getDocs(collection(db, 'documentTemplates'));
+        const templatesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setTemplates(templatesData);
       } catch (error) {
         setError('Erro ao buscar modelos de documentos.');
         console.error('Erro ao buscar modelos de documentos:', error);
       }
     };
+
     fetchTemplates();
   }, []);
 
   const handleAddTemplate = async () => {
     try {
-      const response = await axios.post('/api/document-templates', { name: newTemplate });
-      setTemplates([...templates, response.data]);
+      const docRef = await addDoc(collection(db, 'documentTemplates'), { name: newTemplate });
+      setTemplates([...templates, { id: docRef.id, name: newTemplate }]);
       setNewTemplate('');
     } catch (error) {
       setError('Erro ao adicionar novo modelo de documento.');
@@ -31,34 +50,34 @@ const DocumentTemplates = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Modelos de Documentos</h2>
-        {error && <p className="error text-red-500 mb-4">{error}</p>}
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Novo Modelo de Documento"
-            value={newTemplate}
-            onChange={(e) => setNewTemplate(e.target.value)}
-            className="p-2 w-full border border-gray-300 rounded"
-          />
-          <button
-            onClick={handleAddTemplate}
-            className="bg-green-500 text-white p-2 w-full rounded mt-2 hover:bg-green-700 transition duration-200"
-          >
-            Adicionar Modelo
-          </button>
-        </div>
-        <ul>
-          {templates.map((template, index) => (
-            <li key={index} className="mb-4 p-4 bg-gray-200 rounded">
-              {template.name}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Modelos de Documentos
+      </Typography>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      <TextField
+        label="Novo Modelo de Documento"
+        value={newTemplate}
+        onChange={(e) => setNewTemplate(e.target.value)}
+        fullWidth
+        sx={{ mb: 2 }}
+      />
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleAddTemplate}
+        fullWidth
+      >
+        Adicionar Modelo
+      </Button>
+      <List sx={{ mt: 2 }}>
+        {templates.map((template) => (
+          <ListItem key={template.id} sx={{ mb: 1, backgroundColor: '#f9f9f9', borderRadius: 1 }}>
+            <ListItemText primary={template.name} />
+          </ListItem>
+        ))}
+      </List>
+    </Container>
   );
 };
 

@@ -1,40 +1,46 @@
-  import React from 'react';
-  import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Drawer, List, ListItem, ListItemText, Toolbar, Typography, Divider } from '@mui/material';
 
-  const Sidebar = () => {
-    return (
-      <div className="h-screen bg-teal-700 text-white w-64 space-y-6 py-7 px-2 fixed">
-        <div className="text-white text-2xl text-center font-semibold">
+const Sidebar = () => {
+  const drawerWidth = 240;
+
+  return (
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: drawerWidth,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: drawerWidth,
+          boxSizing: 'border-box',
+        },
+      }}
+    >
+      <Toolbar>
+        <Typography variant="h5" noWrap>
           SIPM
-        </div>
-        <nav>
-          <Link to="/dashboard" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-teal-600">
-            Início
-          </Link>
-          <Link to="/agenda" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-teal-600">
-            Agenda
-          </Link>
-          <Link to="/tarefas" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-teal-600">
-            Tarefas
-          </Link>
-          <Link to="/atendimentos" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-teal-600">
-            Atendimentos
-          </Link>
-          <Link to="/pacientes" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-teal-600">
-            Pacientes
-          </Link>
-          <Link to="/contas-receber" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-teal-600">
-            Contas a receber
-          </Link>
-          <Link to="/contas-pagar" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-teal-600">
-            Contas a pagar
-          </Link>
-          <Link to="/configuracoes" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-teal-600">
-            Configurações
-          </Link>
-        </nav>
-      </div>
-    );
-  };
+        </Typography>
+      </Toolbar>
+      <Divider />
+      <List>
+        {[
+          { text: 'Início', to: '/dashboard' },
+          { text: 'Agenda', to: '/agenda' },
+          { text: 'Tarefas', to: '/tarefas' },
+          { text: 'Atendimentos', to: '/atendimentos' },
+          { text: 'Pacientes', to: '/pacientes' },
+          { text: 'Contas a receber', to: '/contas-receber' },
+          { text: 'Contas a pagar', to: '/contas-pagar' },
+          { text: 'Configurações', to: '/configuracoes' },
+        ].map((item, index) => (
+          <ListItem button component={Link} to={item.to} key={index}>
+            <ListItemText primary={item.text} />
+          </ListItem>
+        ))}
+      </List>
+    </Drawer>
+  );
+};
 
-  export default Sidebar;
+export default Sidebar;

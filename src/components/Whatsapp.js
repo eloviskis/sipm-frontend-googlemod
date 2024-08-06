@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
+import { Container, TextField, Button, Typography, List, ListItem, ListItemText, Alert } from '@mui/material';
 
 const Whatsapp = () => {
   const [messages, setMessages] = useState([]);
@@ -32,29 +33,34 @@ const Whatsapp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="bg-green-100 p-6 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4 text-center text-green-700">WhatsApp</h2>
-        {error && <p className="error text-red-500 mb-4">{error}</p>}
-        <ul className="mb-4">
-          {messages.map((message) => (
-            <li key={message.id} className="mb-2 bg-white p-2 rounded shadow">{message.content}</li>
-          ))}
-        </ul>
-        <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          className="mb-4 p-2 w-full border border-green-300 rounded"
-        />
-        <button
-          onClick={handleSendMessage}
-          className="bg-green-500 text-white p-2 w-full rounded hover:bg-green-700 transition duration-200"
-        >
-          Enviar
-        </button>
-      </div>
-    </div>
+    <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        WhatsApp
+      </Typography>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      <List sx={{ mb: 4 }}>
+        {messages.map((message) => (
+          <ListItem key={message.id} sx={{ mb: 1, backgroundColor: '#f9f9f9', borderRadius: 1 }}>
+            <ListItemText primary={message.content} />
+          </ListItem>
+        ))}
+      </List>
+      <TextField
+        label="Nova mensagem"
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+        fullWidth
+        sx={{ mb: 2 }}
+      />
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleSendMessage}
+        fullWidth
+      >
+        Enviar
+      </Button>
+    </Container>
   );
 };
 
