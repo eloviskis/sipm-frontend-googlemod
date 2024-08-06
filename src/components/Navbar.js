@@ -1,20 +1,23 @@
 import React from 'react';
+import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
 
 const Navbar = () => {
   return (
-    <nav className="bg-primary p-4 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
-        <a href="/" className="text-white text-lg font-bold">SIPM</a>
-        <div className="flex space-x-4">
-          <a href="/register" className="text-white hover:text-secondary">Registro</a>
-          <a href="/login" className="text-white hover:text-secondary">Login</a>
-          <a href="/pricing" className="text-white hover:text-secondary">Valores de Assinatura</a>
-          <a href="/features" className="text-white hover:text-secondary">O Que o Sistema Faz</a>
-          <a href="/contact" className="text-white hover:text-secondary">Contato</a>
-          <a href="/about" className="text-white hover:text-secondary">Quem Somos</a>
-        </div>
-      </div>
-    </nav>
+    <AppBar position="static">
+      <Container>
+        <Toolbar disableGutters>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <a href="/" style={{ color: 'inherit', textDecoration: 'none' }}>SIPM</a>
+          </Typography>
+          <Button color="inherit" href="/register">Registro</Button>
+          <Button color="inherit" href="/login">Login</Button>
+          <Button color="inherit" href="/pricing">Valores de Assinatura</Button>
+          <Button color="inherit" href="/features">O Que o Sistema Faz</Button>
+          <Button color="inherit" href="/contact">Contato</Button>
+          <Button color="inherit" href="/about">Quem Somos</Button>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 };
 

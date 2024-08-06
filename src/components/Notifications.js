@@ -1,5 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { Container, Typography, List, ListItem, ListItemText, Alert } from '@mui/material';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -8,30 +25,32 @@ const Notifications = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('/api/notifications');
-        setNotifications(response.data);
+        const querySnapshot = await getDocs(collection(db, 'notifications'));
+        const notificationsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setNotifications(notificationsData);
       } catch (error) {
         setError('Erro ao obter notificações.');
         console.error('Erro ao obter notificações:', error);
       }
     };
+
     fetchNotifications();
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="bg-white p-6 rounded shadow-md w-full max-w-4xl">
-        <h2 className="text-2xl font-bold mb-6 text-center">Notificações</h2>
-        {error && <p className="error text-red-500 mb-4">{error}</p>}
-        <ul>
-          {notifications.map((notification, index) => (
-            <li key={index} className="mb-4 p-4 bg-gray-200 rounded">
-              {notification.message}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Notificações
+      </Typography>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      <List>
+        {notifications.map((notification) => (
+          <ListItem key={notification.id} sx={{ mb: 1, backgroundColor: '#f9f9f9', borderRadius: 1 }}>
+            <ListItemText primary={notification.message} />
+          </ListItem>
+        ))}
+      </List>
+    </Container>
   );
 };
 
