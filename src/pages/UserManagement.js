@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../axiosConfig';
 import { useSelector } from 'react-redux';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { Container, Box, Typography, List, ListItem, ListItemText, Button, Paper, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -9,57 +26,90 @@ const UserManagement = () => {
   const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
-    axios.get('/api/users').then((response) => {
-      setUsers(response.data);
-    });
-    axios.get('/api/permissions').then((response) => {
-      setPermissions(response.data);
-    });
+    const fetchUsers = async () => {
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      const usersList = usersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setUsers(usersList);
+    };
+
+    const fetchPermissions = async () => {
+      const permissionsSnapshot = await getDocs(collection(db, 'permissions'));
+      const permissionsList = permissionsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPermissions(permissionsList);
+    };
+
+    fetchUsers();
+    fetchPermissions();
   }, []);
 
-  const handleAddPermission = (userId, permission) => {
-    axios.patch(`/api/users/${userId}/add-permission`, { permission })
-      .then((response) => {
-        setUsers(users.map((user) => (user._id === userId ? response.data.user : user)));
-      });
+  const handleAddPermission = async (userId, permission) => {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      permissions: [...selectedUser.permissions, permission],
+    });
+    setUsers(users.map((user) => (user.id === userId ? { ...user, permissions: [...user.permissions, permission] } : user)));
   };
 
-  const handleRemovePermission = (userId, permission) => {
-    axios.patch(`/api/users/${userId}/remove-permission`, { permission })
-      .then((response) => {
-        setUsers(users.map((user) => (user._id === userId ? response.data.user : user)));
-      });
+  const handleRemovePermission = async (userId, permission) => {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      permissions: selectedUser.permissions.filter((perm) => perm !== permission),
+    });
+    setUsers(users.map((user) => (user.id === userId ? { ...user, permissions: user.permissions.filter((perm) => perm !== permission) } : user)));
   };
 
   return (
-    <div>
-      <h2>Gerenciamento de Usuários</h2>
-      <ul>
-        {users.map((user) => (
-          <li key={user._id}>
-            {user.email} - {user.role}
-            <button onClick={() => setSelectedUser(user)}>Gerenciar Permissões</button>
-          </li>
-        ))}
-      </ul>
-      {selectedUser && (
-        <div>
-          <h3>Permissões para {selectedUser.email}</h3>
-          <ul>
-            {permissions.map((permission) => (
-              <li key={permission._id}>
-                {permission.name}
-                {selectedUser.permissions.includes(permission.name) ? (
-                  <button onClick={() => handleRemovePermission(selectedUser._id, permission.name)}>Remover</button>
-                ) : (
-                  <button onClick={() => handleAddPermission(selectedUser._id, permission.name)}>Adicionar</button>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
+    <Container sx={{ py: 8 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Gerenciamento de Usuários
+      </Typography>
+      <Paper sx={{ p: 4 }}>
+        <List>
+          {users.map((user) => (
+            <ListItem key={user.id} sx={{ mb: 2 }}>
+              <ListItemText primary={`${user.email} - ${user.role}`} />
+              <Button variant="contained" color="primary" onClick={() => setSelectedUser(user)}>
+                Gerenciar Permissões
+              </Button>
+            </ListItem>
+          ))}
+        </List>
+        {selectedUser && (
+          <Dialog open={true} onClose={() => setSelectedUser(null)}>
+            <DialogTitle>Permissões para {selectedUser.email}</DialogTitle>
+            <DialogContent>
+              <List>
+                {permissions.map((permission) => (
+                  <ListItem key={permission.id}>
+                    <ListItemText primary={permission.name} />
+                    {selectedUser.permissions.includes(permission.name) ? (
+                      <Button variant="contained" color="secondary" onClick={() => handleRemovePermission(selectedUser.id, permission.name)}>
+                        Remover
+                      </Button>
+                    ) : (
+                      <Button variant="contained" color="primary" onClick={() => handleAddPermission(selectedUser.id, permission.name)}>
+                        Adicionar
+                      </Button>
+                    )}
+                  </ListItem>
+                ))}
+              </List>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setSelectedUser(null)} color="primary">
+                Fechar
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
+      </Paper>
+    </Container>
   );
 };
 

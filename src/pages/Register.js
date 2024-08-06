@@ -1,8 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../axiosConfig'; // Certifique-se de usar a configuração do Axios
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { Container, Box, Typography, TextField, Button, Grid, Paper } from '@mui/material';
 import Navbar from '../components/Navbar';
 import Carousel from '../components/Carousel'; // Adicione o componente de carrossel
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -13,77 +30,74 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/auth/register', { name, email, password });
-      if (response.status === 200) {
-        navigate('/dashboard');
-      } else {
-        alert('Registro falhou');
-      }
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: name });
+      navigate('/dashboard');
     } catch (error) {
       console.error('Erro ao registrar:', error);
+      alert('Registro falhou');
     }
   };
 
   return (
     <div>
       <Navbar />
-      <div className="container mx-auto p-8 flex justify-center items-center">
-        <div className="w-full md:w-1/2 lg:w-1/3 bg-white p-8 rounded shadow-md">
-          <h1 className="text-3xl font-bold mb-8">Registrar</h1>
-          <form onSubmit={handleRegister}>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                Nome
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                Senha
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Grid container spacing={4} justifyContent="center">
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 4 }}>
+              <Typography variant="h4" component="h1" gutterBottom>
                 Registrar
-              </button>
-            </div>
-          </form>
-        </div>
-        <div className="w-full md:w-1/2 lg:w-1/3 p-8">
-          <Carousel />
-        </div>
-      </div>
+              </Typography>
+              <form onSubmit={handleRegister}>
+                <Box sx={{ mb: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="Nome"
+                    variant="outlined"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </Box>
+                <Box sx={{ mb: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    variant="outlined"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </Box>
+                <Box sx={{ mb: 4 }}>
+                  <TextField
+                    fullWidth
+                    label="Senha"
+                    variant="outlined"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </Box>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                >
+                  Registrar
+                </Button>
+              </form>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Carousel />
+          </Grid>
+        </Grid>
+      </Container>
     </div>
   );
 };
